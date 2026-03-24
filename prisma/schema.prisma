@@ -16,7 +16,7 @@ model User {
   email           String          @unique
   password        String          // Hashed password
   name            String?
-  profileImage    String?         // Profile image URL
+  profileImage    String?         @db.LongText // Profile image URL
   gender          String?         // male, female, other
   dateOfBirth     DateTime?
   location        String?

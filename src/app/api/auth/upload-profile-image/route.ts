@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import { db } from '@/lib/db'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,27 +49,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'profiles')
-    try {
-      await mkdir(uploadsDir, { recursive: true })
-    } catch (error) {
-      // Directory might already exist
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const extension = file.name.split('.').pop()
-    const filename = `profile-${decoded.userId}-${timestamp}.${extension}`
-    const filepath = join(uploadsDir, filename)
-
-    // Convert file to buffer and save
+    // Convert to base64 data URL (works on Vercel)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filepath, buffer)
-
-    // Create public URL
-    const imageUrl = `/uploads/profiles/${filename}`
+    const base64 = buffer.toString('base64')
+    const imageUrl = `data:${file.type};base64,${base64}`
 
     // Update user profile image in database
     await db.user.update({
