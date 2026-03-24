@@ -1,0 +1,247 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for regular users
+model User {
+  id              String          @id @default(cuid())
+  email           String          @unique
+  password        String          // Hashed password
+  name            String?
+  profileImage    String?         // Profile image URL
+  gender          String?         // male, female, other
+  dateOfBirth     DateTime?
+  location        String?
+  isActive        Boolean         @default(true)
+  resetToken      String?
+  resetTokenExpiry DateTime?
+  stripeCustomerId String?        @unique
+  stripeSubscriptionId String?    @unique
+  stripePriceId   String?
+  stripeCurrentPeriodEnd DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  subscriptions   Subscription[]
+  contactMessages ContactMessage[]
+}
+
+// Admin model for admin users
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Subscription plans (Basic, Premium, VIP)
+model Plan {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., "Basic", "Premium", "VIP"
+  price       Float    // Price amount
+  currency    String   @default("USD")
+  duration    String   // e.g., "monthly", "yearly"
+  features    String   // JSON string of features
+  isActive    Boolean  @default(true)
+  stripePriceId String? @unique // Stripe Price ID
+  revenue     Float    @default(0) // Total revenue from this plan
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subscriptions Subscription[]
+}
+
+// User subscriptions
+model Subscription {
+  id          String   @id @default(cuid())
+  userId      String
+  planId      String
+  status      String   @default("pending") // pending, approved, rejected, expired, cancelled
+  startDate   DateTime?
+  endDate     DateTime?
+  requestDate DateTime @default(now())
+  approvedAt  DateTime?
+  rejectedAt  DateTime?
+  stripeSessionId String? @unique
+  revenue     Float    @default(0) // Revenue from this subscription
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan  @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Gallery images (legacy - kept for backward compatibility)
+model Gallery {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String   @db.LongText
+  thumbnailUrl String? @db.LongText
+  category    String?  @default("general")
+  contentType String?  @default("image") // "image" or "video"
+  isPremium   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  views       Int      @default(0)
+  likes       Int      @default(0)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  likedBy     GalleryLike[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model GalleryLike {
+  id        String   @id @default(cuid())
+  galleryId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@unique([galleryId, userId])
+  @@index([galleryId])
+  @@index([userId])
+}
+
+// Premium Content model (videos and images)
+model Content {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  mediaUrl    String   @db.LongText
+  thumbnailUrl String? @db.LongText
+  type        String   // "video" or "image"
+  categoryId  String?
+  isPremium   Boolean  @default(true)
+  status      String   @default("active") // active, hidden, frozen
+  views       Int      @default(0)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([status])
+  @@index([isPremium])
+  @@index([categoryId])
+}
+
+// Categories for content organization
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?  // Icon name or URL
+  isActive    Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  contents  Content[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+// Analytics time-series data
+model Analytics {
+  id          String   @id @default(cuid())
+  metricType  String   // "user", "content", "revenue", "subscription"
+  metricName  String   // e.g., "new_users", "content_views", "revenue"
+  value       Float
+  timestamp   DateTime @default(now())
+  dimensions  String?  // JSON string for additional dimensions (gender, ageGroup, location, etc.)
+
+  @@index([metricType])
+  @@index([metricName])
+  @@index([timestamp])
+}
+
+// Contact messages
+model ContactMessage {
+  id        String   @id @default(cuid())
+  userId    String?  // Optional, can be from non-logged-in users
+  name      String
+  email     String
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([isRead])
+  @@index([userId])
+}
+
+// Site visit tracking
+model SiteVisit {
+  id        String   @id @default(cuid())
+  visitorId String   // anonymous cookie-based id
+  path      String   @default("/")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([visitorId])
+}
+
+// Admin notifications
+model Notification {
+  id          String   @id @default(cuid())
+  adminId     String?  // Optional, can be general notifications
+  type        String   // "subscriber", "payment", "content", "system"
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  metadata    String?  // JSON string for additional data
+  createdAt   DateTime @default(now())
+
+  @@index([adminId])
+  @@index([isRead])
+  @@index([type])
+}
+
+// Activity logs for admin actions
+model ActivityLog {
+  id          String   @id @default(cuid())
+  adminId     String?  // Admin who performed action
+  action      String   // "create", "update", "delete", "approve", "reject"
+  entityType  String   // "user", "content", "subscription", "category"
+  entityId    String?  // ID of affected entity
+  description String
+  metadata    String?  // JSON string for additional data
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+}
