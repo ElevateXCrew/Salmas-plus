@@ -118,7 +118,7 @@ export default function AboutPage() {
               About Me
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-              Hello, I'm Salmas
+              Hello, I'm Salmaa
               <span className="block mt-2 bg-gradient-to-r from-amber-200 to-pink-200 bg-clip-text text-transparent">
                 
               </span>
@@ -159,7 +159,7 @@ export default function AboutPage() {
   className="text-lg text-white" 
   style={{ textShadow: "0 0 8px rgba(255,80,80,0.6)" }}
 >
-  Hi, I’m <span className="font-bold">Salma</span> a <span className="font-bold">21 year old fashion model</span> with a passion for storytelling through <span className="font-bold">style, movement, and authentic connection</span>.  
+  Hi, I’m <span className="font-bold">Salmaa</span> a <span className="font-bold">21 year old fashion model</span> with a passion for storytelling through <span className="font-bold">style, movement, and authentic connection</span>.  
   Whether I’m walking into a <span className="font-bold">studio</span> or landing in a <span className="font-bold">new city</span>, I bring <span className="font-bold">energy, versatility, and a love for the art of fashion</span>.
 </p>
                 <p>

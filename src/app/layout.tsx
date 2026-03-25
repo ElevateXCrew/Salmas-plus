@@ -17,26 +17,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Salmas - Premium Content & Exclusive Experiences",
+  title: "Salmaa - Premium Content & Exclusive Experiences",
   description: "Discover exclusive premium content and elevate your creative journey with our curated collection. Join our community of discerning members today.",
   keywords: ["premium content", "exclusive access", "creative resources", "subscription", "membership", "gallery", "premium images"],
-  authors: [{ name: "Salmas Team" }],
+  authors: [{ name: "Salmaa Team" }],
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "Salmas- Premium Content & Exclusive Experiences",
+    title: "Salmaa - Premium Content & Exclusive Experiences",
     description: "Discover exclusive premium content and elevate your creative journey with our curated collection.",
-    url: "https://salmas.com",
-    siteName: "Salmas",
+    url: "https://salmaa.com",
+    siteName: "Salmaa",
     type: "website",
     images: ["/logo.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Salmas - Premium Content",
+    title: "Salmaa - Premium Content",
     description: "Discover exclusive premium content and elevate your creative journey.",
     images: ["/images/hero-bg.png"],
   },

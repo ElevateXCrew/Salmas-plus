@@ -17,7 +17,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-primary gold-text-glow">Salmas</h3>
+            <h3 className="text-xl font-bold text-primary gold-text-glow">Salmaa</h3>
             <p className="text-sm text-muted-foreground">
               Premium content and exclusive experiences for discerning members.
             </p>
@@ -125,8 +125,8 @@ export function Footer() {
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 flex-shrink-0" />
-                <a href="mailto:hello@Salmas.com" className="hover:text-primary transition-colors">
-                  support@Salmas.com
+                <a href="mailto:hello@Salmaa.com" className="hover:text-primary transition-colors">
+                  support@Salmaa.com
                 </a>
               </li>
               <li className="flex items-center space-x-3">
@@ -142,7 +142,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 text-sm text-muted-foreground">
           <p>
-            © {year} Salmas. All rights reserved. Powered by Elevatexcrew.
+            © {year} Salmaa. All rights reserved. Powered by Elevatexcrew.
           </p>
           <div className="flex items-center space-x-1">
             <span>Made with</span>

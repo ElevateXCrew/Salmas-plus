@@ -86,9 +86,9 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <img src="/logo.png" alt="Salmas" className="w-10 h-10 rounded-lg object-cover shadow-lg" />
+            <img src="/logo.png" alt="Salmaa" className="w-10 h-10 rounded-lg object-cover shadow-lg" />
             <span className="text-2xl font-bold tracking-tight gold-text-glow text-primary">
-             Salmas
+             Salmaa
             </span>
           </Link>
 
