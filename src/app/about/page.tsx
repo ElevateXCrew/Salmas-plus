@@ -153,41 +153,30 @@ export default function AboutPage() {
   <span className="font-bold">Hey, You.</span> <span className="font-bold">Yes, You!</span>
 </p>
                 <p>
-                Are you looking for an intelligent, passionate companion to create unforgettable memories with? Someone whose charm, energy, and elegance leave a lasting impression? Meet me once — and the experience will stay with you.
+                  Here's a friendly, professional model bio that captures the essence of a fashion model who loves to travel, connect with people, and take on creative assignments around the world. It keeps the tone warm and inviting while staying appropriate for a portfolio or social media profile.
                 </p>
-                <p 
+<p 
   className="text-lg text-white" 
   style={{ textShadow: "0 0 8px rgba(255,80,80,0.6)" }}
 >
-  I’m <span className="font-bold">Salmas</span>, and I’m not your typical escort — but there’s only one way to truly find out.  
-  I welcome you to my <span className="font-bold">discreet and stylish incall location</span> in <span className="font-bold">Birmingham, Manchester, and London</span>, a beautifully designed modern space created for <span className="font-bold">comfort and private moments</span>.
+  Hi, I’m <span className="font-bold">Salma</span> a <span className="font-bold">21 year old fashion model</span> with a passion for storytelling through <span className="font-bold">style, movement, and authentic connection</span>.  
+  Whether I’m walking into a <span className="font-bold">studio</span> or landing in a <span className="font-bold">new city</span>, I bring <span className="font-bold">energy, versatility, and a love for the art of fashion</span>.
 </p>
                 <p>
-                  I’m a vibrant fashion model with an adventurous spirit. My passion for fashion, travel, and the arts takes me across Europe and the Middle East — exploring new cultures, stylish scenes, and unforgettable destinations.
+                 I’ve been fortunate to work with photographers, designers, and creatives across the world and one of my favorite parts of this journey is the people I get to meet along the way. I’m just as comfortable in front of a lens as I am sharing a great conversation over coffee after a shoot.
                 </p>
                 <p>
-                  Fashion is a big part of who I am. I love experimenting with colors, textures, and bold styles, and my wardrobe reflects my energetic personality.
+                  I’m available for bookings worldwide especially evening and nighttime shoots, events, and creative collaborations in the city. I love the magic that happens when the sun goes down, and I bring that same spark to every project I’m part of.
                 </p>
                 <p>
-                  But beyond the glamour and travel, what matters most to me is real connection. I enjoy meeting open-minded people who appreciate great conversation, laughter, and meaningful experiences.
-                </p>
-                <p>
-                  Curious to see more?
-Explore my exclusive photos, adventures, and behind-the-scenes content on my personal website.
-                </p>
-                <p>
-I offer incalls, outcalls, and Fly Me To You (FMTY) experiences worldwide. I love traveling and creating unforgettable moments wherever the journey takes us.
-                </p>
-                <p>
-                  Curious to see more?
-Explore my exclusive photos, adventures, and behind-the-scenes content on my personal website.
+                 If you're looking for a dedicated, down to earth model who shows up ready to create something beautiful let’s connect. Wherever in the world you are, I’d love to be ..xx
                 </p>
                 <p 
   className="text-lg text-white" 
   style={{ textShadow: "0 0 8px rgba(255,80,80,0.6)" }}
 >
   <strong>Please note:</strong> advance bookings are preferred, as 
-  <strong> same-day appointments</strong> are rarely available.
+  <strong> same day appointments</strong> are rarely available.
 </p>
                 <p 
   className="text-lg text-white font-semibold" 
@@ -214,7 +203,7 @@ Explore my exclusive photos, adventures, and behind-the-scenes content on my per
                     <Heart className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <div className="font-semibold">Age 26</div>
+                    <div className="font-semibold">Age 21</div>
                     <div className="text-sm text-muted-foreground">UK Based</div>
                   </div>
                 </div>
