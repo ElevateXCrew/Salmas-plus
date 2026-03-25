@@ -171,6 +171,49 @@ export async function POST(request: NextRequest) {
 }
 
 /**
+ * PUT /api/admin/gallery - Bulk create gallery items
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    await verifyAdminAuth(request)
+
+    const body = await request.json()
+    const { items } = body
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'items array is required' }, { status: 400 })
+    }
+
+    const maxOrder = await db.gallery.findFirst({
+      select: { displayOrder: true },
+      orderBy: { displayOrder: 'desc' }
+    })
+    let nextOrder = (maxOrder?.displayOrder ?? 0) + 1
+
+    const created = await db.gallery.createMany({
+      data: items.map((item: any) => ({
+        title: item.title || 'Untitled',
+        imageUrl: item.imageUrl,
+        thumbnailUrl: item.thumbnailUrl || null,
+        category: item.category || null,
+        contentType: item.contentType || 'image',
+        isPremium: item.isPremium ?? false,
+        isActive: false,
+        displayOrder: nextOrder++
+      }))
+    })
+
+    return NextResponse.json({ success: true, count: created.count }, { status: 201 })
+  } catch (error: any) {
+    console.error('Bulk create gallery error:', error)
+    if (error.message === 'Not authenticated' || error.message === 'Invalid token' || error.message === 'Token expired') {
+      return NextResponse.json({ error: error.message }, { status: 401 })
+    }
+    return NextResponse.json({ error: 'Failed to bulk create gallery items' }, { status: 500 })
+  }
+}
+
+/**
  * PATCH /api/admin/gallery - Update gallery item
  */
 export async function PATCH(request: NextRequest) {

@@ -173,6 +173,16 @@ export default function AdminDashboard() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
   const [uploadingThumb, setUploadingThumb] = useState(false)
+  const [multiUploadProgress, setMultiUploadProgress] = useState(0)
+  const [multiUploadTotal, setMultiUploadTotal] = useState(0)
+
+  // Bulk upload state
+  const [showBulkUpload, setShowBulkUpload] = useState(false)
+  const [bulkFiles, setBulkFiles] = useState<{ file: File; preview: string; title: string }[]>([])
+  const [bulkUploading, setBulkUploading] = useState(false)
+  const [bulkProgress, setBulkProgress] = useState(0)
+  const [bulkIsPremium, setBulkIsPremium] = useState(false)
+  const [bulkCategory, setBulkCategory] = useState('')
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -187,6 +197,64 @@ export default function AdminDashboard() {
       else alert('Upload failed: ' + (data.error || 'Unknown error'))
     } catch (error: any) { alert('Upload error: ' + error.message) }
     finally { setUploadingImage(false) }
+  }
+
+  const handleMultiImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
+    if (files.length === 1) {
+      // Single file — normal flow, set imageUrl
+      setUploadingImage(true)
+      try {
+        const formData = new FormData()
+        formData.append('file', files[0])
+        const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+        const data = await res.json()
+        if (data.success) setGalleryForm(p => ({ ...p, imageUrl: data.url }))
+        else alert('Upload failed: ' + (data.error || 'Unknown error'))
+      } catch (err: any) { alert('Upload error: ' + err.message) }
+      finally { setUploadingImage(false) }
+    } else {
+      // Multiple files — use bulk upload flow
+      if (files.length > 50) { alert('Max 50 images allowed'); return }
+      setUploadingImage(true)
+      setMultiUploadProgress(0)
+      setMultiUploadTotal(files.length)
+      try {
+        const uploaded: any[] = []
+        for (let i = 0; i < files.length; i++) {
+          const formData = new FormData()
+          formData.append('file', files[i])
+          const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+          const data = await res.json()
+          if (data.success) {
+            uploaded.push({
+              title: files[i].name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
+              imageUrl: data.url,
+              isPremium: galleryForm.isPremium,
+              category: galleryForm.category,
+              contentType: 'image'
+            })
+          }
+          setMultiUploadProgress(i + 1)
+        }
+        if (uploaded.length > 0) {
+          const res = await fetch('/api/admin/gallery', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: uploaded })
+          })
+          const data = await res.json()
+          if (data.success) {
+            await fetchGallery()
+            setShowAddGallery(false)
+            setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false })
+            alert(`✓ ${data.count} images uploaded! Status: Inactive — edit karo activate karne ke liye.`)
+          }
+        }
+      } catch (err: any) { alert('Upload error: ' + err.message) }
+      finally { setUploadingImage(false); setMultiUploadProgress(0); setMultiUploadTotal(0) }
+    }
   }
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,6 +275,55 @@ export default function AdminDashboard() {
       else alert('Upload failed: ' + (data.error || 'Unknown error'))
     } catch (error: any) { alert('Upload error: ' + error.message) }
     finally { setUploadingVideo(false) }
+  }
+
+  const handleBulkFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 50) { alert('Max 50 images allowed'); return }
+    const items = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      title: file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+    }))
+    setBulkFiles(items)
+  }
+
+  const handleBulkUpload = async () => {
+    if (bulkFiles.length === 0) return
+    setBulkUploading(true)
+    setBulkProgress(0)
+    try {
+      const uploaded: any[] = []
+      for (let i = 0; i < bulkFiles.length; i++) {
+        const { file, title } = bulkFiles[i]
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+        const data = await res.json()
+        if (data.success) {
+          uploaded.push({ title, imageUrl: data.url, isPremium: bulkIsPremium, category: bulkCategory, contentType: 'image' })
+        }
+        setBulkProgress(Math.round(((i + 1) / bulkFiles.length) * 100))
+      }
+      if (uploaded.length > 0) {
+        const res = await fetch('/api/admin/gallery', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: uploaded })
+        })
+        const data = await res.json()
+        if (data.success) {
+          await fetchGallery()
+          setShowBulkUpload(false)
+          setBulkFiles([])
+          setBulkProgress(0)
+          setBulkCategory('')
+          setBulkIsPremium(false)
+          alert(`✓ ${data.count} images uploaded successfully! Status: Inactive — edit karo activate karne ke liye.`)
+        }
+      }
+    } catch (err: any) { alert('Bulk upload error: ' + err.message) }
+    finally { setBulkUploading(false) }
   }
 
   const handleThumbUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1789,13 +1906,27 @@ export default function AdminDashboard() {
                       <div className="flex gap-2">
                         <Input value={galleryForm.imageUrl} onChange={e => setGalleryForm(p => ({ ...p, imageUrl: e.target.value }))} className="bg-gray-800 border-gray-700" placeholder={galleryForm.contentType === 'video' ? 'https://... or upload from device' : '/images/... or https://...'} />
                         <label className="cursor-pointer">
-                          <input type="file" accept={galleryForm.contentType === 'video' ? 'video/*' : 'image/*'} className="hidden" onChange={galleryForm.contentType === 'video' ? handleVideoUpload : handleImageUpload} />
+                          <input type="file" accept={galleryForm.contentType === 'video' ? 'video/*' : 'image/*'} multiple={galleryForm.contentType !== 'video'} className="hidden" onChange={galleryForm.contentType === 'video' ? handleVideoUpload : handleMultiImageUpload} />
                           <div className="flex items-center gap-1 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm text-white whitespace-nowrap">
                             {(galleryForm.contentType === 'video' ? uploadingVideo : uploadingImage) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                             Upload
                           </div>
                         </label>
                       </div>
+                      {galleryForm.contentType !== 'video' && (
+                        <p className="text-xs text-blue-400">💡 Multiple images select kar sakte ho — sab ek saath upload ho jayengi</p>
+                      )}
+                      {uploadingImage && multiUploadTotal > 1 && (
+                        <div className="space-y-1 mt-1">
+                          <div className="flex justify-between text-xs text-gray-400">
+                            <span>Uploading {multiUploadProgress}/{multiUploadTotal}...</span>
+                            <span>{Math.round((multiUploadProgress / multiUploadTotal) * 100)}%</span>
+                          </div>
+                          <div className="w-full bg-gray-800 rounded-full h-1.5">
+                            <div className="bg-primary h-1.5 rounded-full transition-all duration-300" style={{ width: `${Math.round((multiUploadProgress / multiUploadTotal) * 100)}%` }} />
+                          </div>
+                        </div>
+                      )}
                       {galleryForm.imageUrl && galleryForm.contentType !== 'video' && (
                         <img src={galleryForm.imageUrl} className="mt-2 h-20 w-20 object-cover rounded border border-gray-700" onError={(e:any) => e.target.style.display='none'} />
                       )}
@@ -1952,13 +2083,106 @@ export default function AdminDashboard() {
                 </DialogContent>
               </Dialog>
 
+              {/* Bulk Upload Dialog */}
+              <Dialog open={showBulkUpload} onOpenChange={open => { setShowBulkUpload(open); if (!open) { setBulkFiles([]); setBulkProgress(0) } }}>
+                <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Bulk Upload Images</DialogTitle>
+                    <DialogDescription className="text-gray-400">Max 50 images. Sab ka title filename se auto-set hoga, status Inactive rahega.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    {/* Settings */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label>Access</Label>
+                        <Select value={bulkIsPremium ? 'true' : 'false'} onValueChange={val => { setBulkIsPremium(val === 'true'); setBulkCategory('') }}>
+                          <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="false">🆓 Free</SelectItem>
+                            <SelectItem value="true">👑 Premium</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {bulkIsPremium && (
+                        <div className="space-y-1">
+                          <Label>Category</Label>
+                          <Select value={bulkCategory} onValueChange={setBulkCategory}>
+                            <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Select category" /></SelectTrigger>
+                            <SelectContent className="max-h-60">
+                              {premiumCategories.map(cat => (
+                                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* File picker */}
+                    <div>
+                      <label className="cursor-pointer block">
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={handleBulkFileSelect} />
+                        <div className="border-2 border-dashed border-gray-600 hover:border-primary rounded-lg p-8 text-center transition-colors">
+                          <Upload className="h-10 w-10 mx-auto mb-2 text-gray-400" />
+                          <p className="text-gray-300 font-medium">Click to select images</p>
+                          <p className="text-xs text-gray-500 mt-1">Max 50 images at once</p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Preview grid */}
+                    {bulkFiles.length > 0 && (
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">{bulkFiles.length} images selected</p>
+                        <div className="grid grid-cols-5 gap-2 max-h-60 overflow-y-auto pr-1">
+                          {bulkFiles.map((item, i) => (
+                            <div key={i} className="relative group">
+                              <img src={item.preview} className="w-full aspect-square object-cover rounded border border-gray-700" />
+                              <button
+                                className="absolute top-0.5 right-0.5 bg-red-600 rounded-full w-4 h-4 text-xs hidden group-hover:flex items-center justify-center"
+                                onClick={() => setBulkFiles(prev => prev.filter((_, idx) => idx !== i))}
+                              >×</button>
+                              <p className="text-xs text-gray-400 truncate mt-0.5">{item.title}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Progress */}
+                    {bulkUploading && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-gray-400">
+                          <span>Uploading...</span>
+                          <span>{bulkProgress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-800 rounded-full h-2">
+                          <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${bulkProgress}%` }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowBulkUpload(false)} className="border-gray-700 text-white" disabled={bulkUploading}>Cancel</Button>
+                    <Button onClick={handleBulkUpload} disabled={bulkUploading || bulkFiles.length === 0}>
+                      {bulkUploading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />{bulkProgress}%</> : `Upload ${bulkFiles.length} Images`}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Gallery Management <span className="text-sm font-normal text-gray-400 ml-2">({galleryItems.length} images)</span></CardTitle>
-                    <Button onClick={() => { setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false }); setShowAddGallery(true) }} className="bg-primary hover:bg-primary/90">
-                      <Plus className="h-4 w-4 mr-2" /> Add content
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button onClick={() => { setBulkFiles([]); setBulkCategory(''); setBulkIsPremium(false); setShowBulkUpload(true) }} variant="outline" className="border-gray-700 text-white hover:bg-gray-700">
+                        <Upload className="h-4 w-4 mr-2" /> Bulk Upload
+                      </Button>
+                      <Button onClick={() => { setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false }); setShowAddGallery(true) }} className="bg-primary hover:bg-primary/90">
+                        <Plus className="h-4 w-4 mr-2" /> Add content
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
