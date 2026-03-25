@@ -139,7 +139,7 @@ export default function Home() {
                 className="text-lg px-8 py-6 h-auto text-white border-white/30 bg-primary hover:bg-primary/90 hover:text-white"
                 asChild
               >
-                <Link href="https://wa.me/923052643550" target="_blank" rel="noopener noreferrer">
+                <Link href="https://wa.me/+447348207570" target="_blank" rel="noopener noreferrer">
                   Book Now..
                 </Link>
               </Button>
@@ -376,7 +376,7 @@ export default function Home() {
           {/* Call to Action */}
           <div className="text-center mt-12">
             <Button size="lg" className="text-xl px-12 py-6 h-auto bg-primary hover:bg-primary/90 text-white shadow-2xl hover:shadow-primary/50 transform hover:scale-105 transition-all duration-300" asChild>
-              <Link href="https://wa.me/+44 7348 207570" target="_blank" rel="noopener noreferrer">
+              <Link href="https://wa.me/+447348207570" target="_blank" rel="noopener noreferrer">
                 <span className="mr-3 text-2xl">💕</span>
                 Book Now on WhatsApp
                 <span className="ml-3 text-2xl">💕</span>
