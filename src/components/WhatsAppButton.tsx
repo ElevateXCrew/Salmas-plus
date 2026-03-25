@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 export function WhatsAppButton() {
   const pathname = usePathname()
-  const phoneNumber = '1234567890' // Replace with actual WhatsApp number
+  const phoneNumber = '+447348207570' // Replace with actual WhatsApp number
 
   if (pathname?.startsWith('/admin')) return null
 

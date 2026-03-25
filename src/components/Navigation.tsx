@@ -64,7 +64,7 @@ export function Navigation() {
     { name: 'Gallery', href: '/gallery', requiresAuth: true },
     { name: 'About Me', href: '/about', requiresAuth: true },
     { name: 'Plans', href: '/pricing', requiresAuth: true },
-    { name: 'WhatsApp Me', href: 'https://wa.me/923052643550', external: true, requiresAuth: false },
+    { name: 'WhatsApp Me', href: 'https://wa.me/+447348207570', external: true, requiresAuth: false },
   ]
 
   const handleNavClick = (e: React.MouseEvent, link: any) => {
