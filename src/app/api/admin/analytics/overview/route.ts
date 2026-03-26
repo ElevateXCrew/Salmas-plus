@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       subsByStatus,
       totalSiteVisits,
       uniqueSiteVisitors,
+      deviceStats,
     ] = await Promise.all([
       db.user.count(),
       db.user.count({ where: { isActive: true } }),
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
       ),
       db.$queryRaw`SELECT COUNT(*) as cnt FROM SiteVisit`.then((r: any) => Number(r[0]?.cnt || 0)),
       db.$queryRaw`SELECT COUNT(DISTINCT visitorId) as cnt FROM SiteVisit`.then((r: any) => Number(r[0]?.cnt || 0)),
+      db.$queryRaw`SELECT deviceType, COUNT(*) as cnt FROM SiteVisit GROUP BY deviceType`.then((r: any) => r),
     ])
 
     // last 6 months user signups - sequential to avoid SQLite lock
@@ -100,6 +102,11 @@ export async function GET(request: NextRequest) {
           totalLikes: totalViewsAgg._sum.likes || 0,
           totalSiteVisits,
           uniqueSiteVisitors,
+          deviceVisits: {
+            mobile: Number((deviceStats as any[]).find((d: any) => d.deviceType === 'mobile')?.cnt || 0),
+            tablet: Number((deviceStats as any[]).find((d: any) => d.deviceType === 'tablet')?.cnt || 0),
+            desktop: Number((deviceStats as any[]).find((d: any) => d.deviceType === 'desktop')?.cnt || 0),
+          },
         },
         userGrowth: last6Months,
         subsByStatus,

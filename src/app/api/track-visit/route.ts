@@ -3,22 +3,23 @@ import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
-    const { path } = await request.json().catch(() => ({ path: '/' }))
+    const body = await request.json().catch(() => ({ path: '/', deviceType: 'desktop' }))
+    const path = body.path || '/'
+    const deviceType = ['mobile', 'tablet', 'desktop'].includes(body.deviceType) ? body.deviceType : 'desktop'
 
-    // cookie se visitor id lo, nahi hai toh naya banao
     let visitorId = request.cookies.get('visitor-id')?.value
     const isNew = !visitorId
     if (!visitorId) visitorId = crypto.randomUUID()
 
     await db.siteVisit.create({
-      data: { id: crypto.randomUUID(), visitorId, path: path || '/' }
+      data: { id: crypto.randomUUID(), visitorId, path, deviceType }
     })
 
     const res = NextResponse.json({ success: true })
     if (isNew) {
       res.cookies.set('visitor-id', visitorId, {
         httpOnly: true,
-        maxAge: 60 * 60 * 24 * 365, // 1 saal
+        maxAge: 60 * 60 * 24 * 365,
         path: '/',
         sameSite: 'lax',
       })

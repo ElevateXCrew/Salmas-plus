@@ -203,13 +203,15 @@ model ContactMessage {
 
 // Site visit tracking
 model SiteVisit {
-  id        String   @id @default(cuid())
-  visitorId String   // anonymous cookie-based id
-  path      String   @default("/")
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  visitorId  String
+  path       String   @default("/")
+  deviceType String   @default("desktop") // mobile, tablet, desktop
+  createdAt  DateTime @default(now())
 
   @@index([createdAt])
   @@index([visitorId])
+  @@index([deviceType])
 }
 
 // Admin notifications

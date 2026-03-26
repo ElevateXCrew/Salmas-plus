@@ -911,6 +911,74 @@ export default function AdminDashboard() {
                     </Card>
                   </div>
 
+
+                  {/* Device Breakdown */}
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+                    <Card className="border border-blue-500/40 bg-blue-500/5">
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-400">🖥️ Desktop Visits</CardTitle>
+                        <BarChart3 className="h-5 w-5 text-blue-400" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold text-blue-400">{(analytics.summary.deviceVisits?.desktop || 0).toLocaleString()}</div>
+                        <p className="text-xs text-gray-500 mt-1">PC / Laptop users</p>
+                        {analytics.summary.totalSiteVisits > 0 && (
+                          <div className="mt-2">
+                            <div className="flex justify-between text-xs text-gray-500 mb-1">
+                              <span>Share</span>
+                              <span>{Math.round((analytics.summary.deviceVisits?.desktop || 0) / analytics.summary.totalSiteVisits * 100)}%</span>
+                            </div>
+                            <div className="w-full bg-gray-800 rounded-full h-1.5">
+                              <div className="bg-blue-400 h-1.5 rounded-full" style={{ width: `${Math.round((analytics.summary.deviceVisits?.desktop || 0) / analytics.summary.totalSiteVisits * 100)}%` }} />
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                    <Card className="border border-orange-500/40 bg-orange-500/5">
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-400">📱 Mobile Visits</CardTitle>
+                        <Activity className="h-5 w-5 text-orange-400" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold text-orange-400">{(analytics.summary.deviceVisits?.mobile || 0).toLocaleString()}</div>
+                        <p className="text-xs text-gray-500 mt-1">Smartphone users</p>
+                        {analytics.summary.totalSiteVisits > 0 && (
+                          <div className="mt-2">
+                            <div className="flex justify-between text-xs text-gray-500 mb-1">
+                              <span>Share</span>
+                              <span>{Math.round((analytics.summary.deviceVisits?.mobile || 0) / analytics.summary.totalSiteVisits * 100)}%</span>
+                            </div>
+                            <div className="w-full bg-gray-800 rounded-full h-1.5">
+                              <div className="bg-orange-400 h-1.5 rounded-full" style={{ width: `${Math.round((analytics.summary.deviceVisits?.mobile || 0) / analytics.summary.totalSiteVisits * 100)}%` }} />
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                    <Card className="border border-purple-500/40 bg-purple-500/5">
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-400">📟 Tablet Visits</CardTitle>
+                        <Activity className="h-5 w-5 text-purple-400" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold text-purple-400">{(analytics.summary.deviceVisits?.tablet || 0).toLocaleString()}</div>
+                        <p className="text-xs text-gray-500 mt-1">Tablet users</p>
+                        {analytics.summary.totalSiteVisits > 0 && (
+                          <div className="mt-2">
+                            <div className="flex justify-between text-xs text-gray-500 mb-1">
+                              <span>Share</span>
+                              <span>{Math.round((analytics.summary.deviceVisits?.tablet || 0) / analytics.summary.totalSiteVisits * 100)}%</span>
+                            </div>
+                            <div className="w-full bg-gray-800 rounded-full h-1.5">
+                              <div className="bg-purple-400 h-1.5 rounded-full" style={{ width: `${Math.round((analytics.summary.deviceVisits?.tablet || 0) / analytics.summary.totalSiteVisits * 100)}%` }} />
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
                   {/* Row 2 - Revenue & Content */}
                   <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                     <Card>
