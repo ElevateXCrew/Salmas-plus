@@ -358,6 +358,14 @@ export default function AdminDashboard() {
   const [createSubForm, setCreateSubForm] = useState({ userId: '', planId: '', startDate: '', endDate: '' })
   const [createSubLoading, setCreateSubLoading] = useState(false)
 
+  // Plans state
+  const [adminPlans, setAdminPlans] = useState<any[]>([])
+  const [plansLoading, setPlansLoading] = useState(false)
+  const [editingPlan, setEditingPlan] = useState<any | null>(null)
+  const [planForm, setPlanForm] = useState({ name: '', price: '', currency: '£', duration: 'monthly', features: [] as string[], isActive: true, discount: '' })
+  const [planActionLoading, setPlanActionLoading] = useState(false)
+  const [newFeature, setNewFeature] = useState('')
+
   // Fetch admin auth
   useEffect(() => {
     fetchAdmin()
@@ -373,6 +381,7 @@ export default function AdminDashboard() {
       if (activeSection === 'users') fetchUsers(1, '')
       if (activeSection === 'subscriptions') { fetchSubscriptions(1, 'all'); fetchPlansAndUsers() }
       if (activeSection === 'gallery') fetchGallery()
+      if (activeSection === 'plans') fetchAdminPlans()
     }
   }, [activeSection, admin, timeRange, metricType])
 
@@ -661,6 +670,45 @@ export default function AdminDashboard() {
     finally { setCreateSubLoading(false) }
   }
 
+  const fetchAdminPlans = async () => {
+    setPlansLoading(true)
+    try {
+      const res = await fetch('/api/admin/plans')
+      const data = await res.json()
+      if (data.success) setAdminPlans(data.plans)
+    } catch {}
+    finally { setPlansLoading(false) }
+  }
+
+  const handleUpdatePlan = async () => {
+    if (!editingPlan) return
+    setPlanActionLoading(true)
+    try {
+      const res = await fetch('/api/admin/plans', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingPlan.id,
+          name: planForm.name,
+          price: planForm.price,
+          currency: planForm.currency,
+          duration: planForm.duration,
+          features: planForm.features,
+          isActive: planForm.isActive,
+          discount: planForm.discount
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAdminPlans(prev => prev.map(p => p.id === editingPlan.id ? data.plan : p))
+        setEditingPlan(null)
+      } else {
+        alert('Update failed: ' + (data.error || 'Unknown error'))
+      }
+    } catch (err: any) { alert('Error: ' + err.message) }
+    finally { setPlanActionLoading(false) }
+  }
+
   const fetchPlansAndUsers = async () => {
     try {
       const [plansRes, usersRes] = await Promise.all([
@@ -732,6 +780,7 @@ export default function AdminDashboard() {
                 { id: 'likes-views', label: 'Likes & Views', icon: Activity },
                 { id: 'analytics', label: 'Analytics', icon: BarChart3 },
                 { id: 'revenue', label: 'Revenue', icon: DollarSign },
+                { id: 'plans', label: 'Plan Controls', icon: Settings },
                 { id: 'gallery', label: 'Gallery', icon: Grid3x3 },
                 { id: 'users', label: 'Users', icon: Users },
                 { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
@@ -2636,6 +2685,208 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* Plans Section */}
+          {activeSection === 'plans' && (
+            <div className="space-y-6">
+              {/* Edit Plan Dialog */}
+              <Dialog open={!!editingPlan} onOpenChange={open => !open && setEditingPlan(null)}>
+                <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>Edit Plan: {editingPlan?.name}</DialogTitle>
+                    <DialogDescription className="text-gray-400">Plan ki details update karo. Changes website pe turant reflect honge.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    {/* Name */}
+                    <div className="space-y-1">
+                      <Label>Plan Name</Label>
+                      <Input value={planForm.name} onChange={e => setPlanForm(p => ({ ...p, name: e.target.value }))} className="bg-gray-800 border-gray-700" placeholder="e.g. Basic, Premium, VIP" />
+                    </div>
+
+                    {/* Price + Currency + Duration */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label>Price</Label>
+                        <Input type="number" min="0" step="0.01" value={planForm.price} onChange={e => setPlanForm(p => ({ ...p, price: e.target.value }))} className="bg-gray-800 border-gray-700" placeholder="0.00" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Currency</Label>
+                        <Input value={planForm.currency} onChange={e => setPlanForm(p => ({ ...p, currency: e.target.value }))} className="bg-gray-800 border-gray-700" placeholder="£ or $" maxLength={3} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Duration</Label>
+                        <Select value={planForm.duration} onValueChange={val => setPlanForm(p => ({ ...p, duration: val }))}>
+                          <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Discount */}
+                    <div className="space-y-1">
+                      <Label>Discount % <span className="text-gray-500 text-xs">(0 = no discount)</span></Label>
+                      <div className="flex items-center gap-3">
+                        <Input type="number" min="0" max="100" step="1" value={planForm.discount} onChange={e => setPlanForm(p => ({ ...p, discount: e.target.value }))} className="bg-gray-800 border-gray-700 w-32" placeholder="0" />
+                        {planForm.discount && parseFloat(planForm.discount) > 0 && planForm.price ? (
+                          <div className="text-sm">
+                            <span className="text-gray-400 line-through">{planForm.currency}{parseFloat(planForm.price).toFixed(2)}</span>
+                            <span className="text-green-400 font-bold ml-2">
+                              {planForm.currency}{(parseFloat(planForm.price) * (1 - parseFloat(planForm.discount) / 100)).toFixed(2)}
+                            </span>
+                            <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">{planForm.discount}% OFF</span>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="space-y-1">
+                      <Label>Status</Label>
+                      <Select value={planForm.isActive ? 'true' : 'false'} onValueChange={val => setPlanForm(p => ({ ...p, isActive: val === 'true' }))}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Active</SelectItem>
+                          <SelectItem value="false">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-2">
+                      <Label>Features</Label>
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        {planForm.features.map((f, i) => (
+                          <div key={i} className="flex gap-2 items-center">
+                            <Input
+                              value={f}
+                              onChange={e => setPlanForm(p => ({ ...p, features: p.features.map((x, idx) => idx === i ? e.target.value : x) }))}
+                              className="bg-gray-800 border-gray-700 text-sm h-8"
+                            />
+                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-400 hover:bg-red-400/10"
+                              onClick={() => setPlanForm(p => ({ ...p, features: p.features.filter((_, idx) => idx !== i) }))}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          value={newFeature}
+                          onChange={e => setNewFeature(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter' && newFeature.trim()) { setPlanForm(p => ({ ...p, features: [...p.features, newFeature.trim()] })); setNewFeature('') } }}
+                          className="bg-gray-800 border-gray-700 text-sm h-8"
+                          placeholder="New feature add karo..."
+                        />
+                        <Button size="sm" className="h-8 px-3"
+                          onClick={() => { if (newFeature.trim()) { setPlanForm(p => ({ ...p, features: [...p.features, newFeature.trim()] })); setNewFeature('') } }}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setEditingPlan(null)} className="border-gray-700 text-white">Cancel</Button>
+                    <Button onClick={handleUpdatePlan} disabled={planActionLoading}>
+                      {planActionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Plans Cards */}
+              {plansLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold">Plan Controls</h2>
+                      <p className="text-sm text-gray-400 mt-1">Plans update karo — changes website pe turant reflect honge</p>
+                    </div>
+                    <Button onClick={fetchAdminPlans} variant="outline" className="border-gray-700 text-white hover:bg-gray-700">
+                      Refresh
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {adminPlans.map(plan => {
+                      const discountedPrice = plan.discount > 0 ? plan.price * (1 - plan.discount / 100) : null
+                      return (
+                        <Card key={plan.id} className={`border ${ plan.isActive ? 'border-gray-700' : 'border-red-900/50 opacity-60' } bg-gray-900`}>
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <CardTitle className="text-lg">{plan.name}</CardTitle>
+                                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                                  {plan.discount > 0 ? (
+                                    <>
+                                      <span className="text-gray-400 line-through text-sm">{plan.currency}{plan.price}</span>
+                                      <span className="text-2xl font-bold text-green-400">{plan.currency}{discountedPrice?.toFixed(2)}</span>
+                                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{plan.discount}% OFF</span>
+                                    </>
+                                  ) : (
+                                    <span className="text-2xl font-bold text-white">{plan.currency}{plan.price}</span>
+                                  )}
+                                  <span className="text-gray-400 text-sm">/{plan.duration}</span>
+                                </div>
+                              </div>
+                              <Badge variant={plan.isActive ? 'default' : 'secondary'} className="text-xs">
+                                {plan.isActive ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            {/* Features list */}
+                            <div className="space-y-1">
+                              {(plan.features || []).slice(0, 4).map((f: string, i: number) => (
+                                <div key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                                  <CheckCircle className="h-3 w-3 text-green-400 flex-shrink-0" />
+                                  <span className="truncate">{f}</span>
+                                </div>
+                              ))}
+                              {plan.features?.length > 4 && (
+                                <p className="text-xs text-gray-500">+{plan.features.length - 4} more features</p>
+                              )}
+                            </div>
+                            <Button
+                              className="w-full mt-2"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingPlan(plan)
+                                setPlanForm({
+                                  name: plan.name,
+                                  price: String(plan.price),
+                                  currency: plan.currency,
+                                  duration: plan.duration,
+                                  features: plan.features || [],
+                                  isActive: plan.isActive,
+                                  discount: plan.discount > 0 ? String(plan.discount) : ''
+                                })
+                                setNewFeature('')
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-2" /> Edit Plan
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+
+                  {adminPlans.length === 0 && (
+                    <Card><CardContent className="py-12 text-center"><p className="text-gray-500">No plans found</p></CardContent></Card>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
         </div>
       </main>

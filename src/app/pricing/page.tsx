@@ -24,6 +24,7 @@ interface Plan {
   duration: string
   features: string[]
   isActive: boolean
+  discount?: number
 }
 
 interface FAQ {
@@ -281,10 +282,23 @@ export default function PricingPage() {
                       <CardTitle className="text-2xl text-white">{plan.name}</CardTitle>
                       <CardDescription>
                         <div className="mt-4">
-                          <span className="text-4xl font-bold text-white">
-                            {plan.currency}{plan.price}
-                          </span>
-                          <span className="text-muted-foreground">/{plan.duration}</span>
+                          {plan.discount && plan.discount > 0 ? (
+                            <>
+                              <div className="flex items-center justify-center gap-2 mb-1">
+                                <span className="text-lg text-gray-400 line-through">{plan.currency}{plan.price}</span>
+                                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{plan.discount}% OFF</span>
+                              </div>
+                              <span className="text-4xl font-bold text-white">
+                                {plan.currency}{(plan.price * (1 - plan.discount / 100)).toFixed(2)}
+                              </span>
+                              <span className="text-muted-foreground">/{plan.duration}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-4xl font-bold text-white">{plan.currency}{plan.price}</span>
+                              <span className="text-muted-foreground">/{plan.duration}</span>
+                            </>
+                          )}
                         </div>
                       </CardDescription>
                     </CardHeader>
