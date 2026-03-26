@@ -88,19 +88,7 @@ export default function RootLayout({
             document.addEventListener('selectstart', function(e) { if (!devMode) e.preventDefault(); });
             document.addEventListener('dragstart', function(e) { if (!devMode) e.preventDefault(); });
 
-            // DevTools detection (skip in dev mode)
-            var devtools = { open: false };
-            setInterval(function() {
-              if (devMode) { devtools.open = false; return; }
-              if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-                if (!devtools.open) {
-                  devtools.open = true;
-                  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#fff;font-size:24px;font-family:sans-serif;">⛔ Access Denied</div>';
-                }
-              } else {
-                devtools.open = false;
-              }
-            }, 500);
+
           })();
         ` }} />
       </head>
