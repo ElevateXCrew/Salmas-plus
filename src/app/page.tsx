@@ -148,7 +148,7 @@ export default function Home() {
               Gallery
             </div>
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
-               Our Collection
+               For hot 🔥 videos please subscribe
             </h2>
 
           </div>
