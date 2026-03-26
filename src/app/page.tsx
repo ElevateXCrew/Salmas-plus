@@ -77,10 +77,10 @@ export default function Home() {
   ]
 
   const galleryItems = [
-    { src: '/images/gallery-1.png', heading: 'I’m all yours.', button: 'Taste the thrill' },
-    { src: '/images/gallery-2.png', heading: 'Don’t stop now.', button: 'Touch me here…' },
-    { src: '/images/gallery-3.png', heading: 'Hold me tight.', button: 'Feeling naughty?' },
-    { src: '/images/gallery-4.png', heading: 'Can’t resist me.', button: 'Lets get wild.' }
+    { src: '/images/gallery-1.png', heading: '', button: '' },
+    { src: '/images/gallery-2.png', heading: '', button: '' },
+    { src: '/images/gallery-3.png', heading: '', button: '' },
+    { src: '/images/gallery-4.png', heading: '', button: '' }
   ]
 
   const scrollToSection = (id: string) => {
@@ -153,8 +153,8 @@ export default function Home() {
                 High Class Independent Escort in Birmingham
               </h2>
               <p className="text-2xl font-bold tracking-tight text-muted-foreground leading-relaxed text-center">
-                Me a very sexy girl with a lot of experience in fucking. 
-          So many beautiful memories and amazing moments are waiting for you.
+              I’m a very sexy, confident girl with plenty of experience. 
+            So many beautiful memories and amazing moments are waiting for you.
               </p>
               <div className="grid grid-cols-2 gap-6 pt-4">
                 <div className="space-y-2">
@@ -193,10 +193,6 @@ export default function Home() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                     <Heart className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Ready to fuck me....</div>
-                    <div className="text-sm text-muted-foreground">Honey 💋</div>
                   </div>
                 </div>
               </div>
@@ -239,10 +235,6 @@ export default function Home() {
                   <h3 className="text-white text-3xl font-bold transform -translate-y-10 group-hover:translate-y-0 transition-all duration-700 delay-100">
                     {item.heading}
                   </h3>
-                  <Button variant="secondary" size="lg" className="bg-primary text-white shadow-[0_0_40px_rgba(220,38,38,1)] transform scale-0 group-hover:scale-100 transition-all duration-500 delay-200">
-                    <span className="mr-2 text-2xl emoji-pulse">💋</span>
-                    {item.button}
-                  </Button>
                 </div>
               </div>
             ))}
