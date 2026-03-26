@@ -94,66 +94,63 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navigation />
 
+
       {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section id="home" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-top bg-no-repeat"
           style={{
             backgroundImage: 'url("/images/hero-bg.png")',
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight">
-              Welcome to my <span className="bg-gradient-to-r from-amber-200 to-pink-200 bg-clip-text text-transparent">Fans Page</span>
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center py-8 sm:py-16">
+          <div className="max-w-2xl mx-auto space-y-3 sm:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <h1 className="text-2xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+              Welcome to my <br />
+              <span className="bg-gradient-to-r from-amber-200 to-pink-200 bg-clip-text text-transparent">
+                Fans Page
+              </span>
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 max-w-2xl mx-auto font-bold tracking-tight">
-              For More contant Please Subscribe to get regular weekly updates 
+            <p className="text-sm sm:text-xl text-white/90 max-w-xl mx-auto font-bold tracking-tight">
+              For more content, please subscribe to get regular weekly updates.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" className="text-lg px-8 py-6 h-auto bg-primary text-white hover:bg-primary/90 border border-white/30" asChild>
+            <div className="flex flex-row gap-2 justify-center items-center">
+              <Button size="sm" className="text-xs sm:text-lg px-4 sm:px-8 py-2 sm:py-6 h-auto bg-primary text-white hover:bg-primary/90 border border-white/30" asChild>
                 <Link href="/premium">
                   Subscribe Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-1 h-3 w-3 sm:h-5 sm:w-5" />
                 </Link>
               </Button>
               <Button
-                size="lg"
+                size="sm"
                 variant="outline"
-                className="text-lg px-8 py-6 h-auto text-white border-white/30 bg-primary hover:bg-primary/90 hover:text-white"
+                className="text-xs sm:text-lg px-4 sm:px-8 py-2 sm:py-6 h-auto text-white border-white/30 bg-primary hover:bg-primary/90 hover:text-white"
                 asChild
               >
-                <Link href="https://wa.me/+447348207570" target="_blank" rel="noopener noreferrer">
-                  Book Now..
+                <Link href="https://wa.me/+447511808743" target="_blank" rel="noopener noreferrer">
+                  Book Now
                 </Link>
               </Button>
             </div>
           </div>
         </div>
-
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/70 rounded-full mt-2" />
-          </div>
-        </div>
       </section>
 
+
       {/* Gallery Preview Section */}
-      <section id="gallery" className="py-8 sm:py-12 bg-muted/30">
+      <section id="gallery" className="py-4 sm:py-8 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-6">
             <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
               Gallery
             </div>
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
-              Explore Our Premium Collection
+               Our Collection
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Discover stunning visuals crafted by professionals for your creative projects
-            </p>
+
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -203,10 +200,11 @@ export default function Home() {
                 High Class Independent Escort in Birmingham
               </h2>
               <p className="text-2xl font-bold tracking-tight text-muted-foreground leading-relaxed text-center">
-              Iâ€™m a very sexy, confident girl with plenty of experience. 
+                I’m a very sexy, confident girl with plenty of experience. 
             So many beautiful memories and amazing moments are waiting for you.
               </p>
-              
+
+
             </div>
             <div className="relative animate-in fade-in slide-in-from-right-8 duration-1000">
               <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
@@ -238,7 +236,7 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto space-y-6 mb-16">
             <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
-              ðŸ’‹ My Booking Rates ðŸ’‹
+              💋 My Booking Rates 💋
             </div>
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
               Spend Beautiful Time With Me
@@ -256,7 +254,7 @@ export default function Home() {
               <div className="relative z-10">
                 <div className="text-center mb-8">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-                    ðŸ  Incall Experience
+                     Incall Experience
                   </div>
                   <h3 className="text-3xl font-bold mb-2">Come to My Place</h3>
                   <p className="text-muted-foreground">Intimate moments in my cozy, private space</p>
@@ -265,23 +263,23 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                     <span className="font-medium">Up to 1 hour</span>
-                    <span className="text-2xl font-bold text-primary">Â£200</span>
+                    <span className="text-2xl font-bold text-primary">£200</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                     <span className="font-medium">Up to 2 hours</span>
-                    <span className="text-2xl font-bold text-primary">Â£400</span>
+                    <span className="text-2xl font-bold text-primary">£400</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-primary/10 rounded-xl border-2 border-primary/20">
                     <span className="font-medium">Overnight (8 Hours)</span>
-                    <span className="text-2xl font-bold text-primary">Â£1,500</span>
+                    <span className="text-2xl font-bold text-primary">£1,500</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-primary/10 rounded-xl border-2 border-primary/20">
                     <span className="font-medium">Overnight (12 Hours)</span>
-                    <span className="text-2xl font-bold text-primary">Â£2,000</span>
+                    <span className="text-2xl font-bold text-primary">£2,000</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30">
                     <span className="font-medium">One Week</span>
-                    <span className="text-2xl font-bold text-primary">Â£15,000</span>
+                    <span className="text-2xl font-bold text-primary">£15,000</span>
                   </div>
                 </div>
                 
@@ -297,7 +295,7 @@ export default function Home() {
               <div className="relative z-10">
                 <div className="text-center mb-8">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-                    ðŸš— Outcall Experience
+                    🚗 Outcall Experience
                   </div>
                   <h3 className="text-3xl font-bold mb-2">I Come to You</h3>
                   <p className="text-muted-foreground">Exclusive moments at your preferred location</p>
@@ -306,23 +304,23 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                     <span className="font-medium">Up to 1 hour</span>
-                    <span className="text-2xl font-bold text-primary">Â£250</span>
+                    <span className="text-2xl font-bold text-primary">£250</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                     <span className="font-medium">Up to 2 hours</span>
-                    <span className="text-2xl font-bold text-primary">Â£500</span>
+                    <span className="text-2xl font-bold text-primary">£500</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-primary/10 rounded-xl border-2 border-primary/20">
                     <span className="font-medium">Overnight (8 Hours)</span>
-                    <span className="text-2xl font-bold text-primary">Â£1,800</span>
+                    <span className="text-2xl font-bold text-primary">£1,800</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-primary/10 rounded-xl border-2 border-primary/20">
                     <span className="font-medium">Overnight (12 Hours)</span>
-                    <span className="text-2xl font-bold text-primary">Â£2,200</span>
+                    <span className="text-2xl font-bold text-primary">£2,200</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30">
                     <span className="font-medium">One Week</span>
-                    <span className="text-2xl font-bold text-primary">Â£15,000</span>
+                    <span className="text-2xl font-bold text-primary">£15,000</span>
                   </div>
                 </div>
                 
@@ -338,9 +336,9 @@ export default function Home() {
           <div className="text-center mt-12">
             <Button size="lg" className="text-xl px-12 py-6 h-auto bg-primary hover:bg-primary/90 text-white shadow-2xl hover:shadow-primary/50 transform hover:scale-105 transition-all duration-300" asChild>
               <Link href="https://wa.me/+447348207570" target="_blank" rel="noopener noreferrer">
-                <span className="mr-3 text-2xl">ðŸ’•</span>
+                <span className="mr-3 text-2xl"></span>
                 Book Now on WhatsApp
-                <span className="ml-3 text-2xl">ðŸ’•</span>
+                <span className="ml-3 text-2xl"></span>
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground mt-4">
