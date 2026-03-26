@@ -124,7 +124,7 @@ export default function Home() {
               Welcome to my <span className="bg-gradient-to-r from-amber-200 to-pink-200 bg-clip-text text-transparent">Fans Page</span>
             </h1>
             <p className="text-xl sm:text-2xl text-white/90 max-w-2xl mx-auto font-bold tracking-tight">
-              Here's something for my content lovers
+              For More contant Please Subscribe to get regular weekly updates 
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" className="text-lg px-8 py-6 h-auto bg-primary text-white hover:bg-primary/90 border border-white/30" asChild>
