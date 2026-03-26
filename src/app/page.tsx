@@ -141,6 +141,56 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Gallery Preview Section */}
+      <section id="gallery" className="py-20 sm:py-32 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+            <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+              Gallery
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
+              Explore Our Premium Collection
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Discover stunning visuals crafted by professionals for your creative projects
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {galleryItems.map((item, index) => (
+              <div
+                key={index}
+                className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer animate-in fade-in slide-in-from-bottom-4 duration-700 transition-all hover:scale-150 hover:z-50 hover:shadow-[0_0_60px_rgba(220,38,38,0.9)]"
+                style={{ 
+                  animationDelay: `${index * 100}ms`,
+                  transformOrigin: 'left center'
+                }}
+              >
+                <img
+                  src={item.src}
+                  alt={`Gallery ${index + 1}`}
+                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-125 group-hover:rotate-3"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center gap-4">
+                  <h3 className="text-white text-3xl font-bold transform -translate-y-10 group-hover:translate-y-0 transition-all duration-700 delay-100">
+                    {item.heading}
+                  </h3>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/premium">
+                View Full Gallery
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* About Preview Section */}
       <section id="about Me" className="py-20 sm:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -197,56 +247,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery Preview Section */}
-      <section id="gallery" className="py-20 sm:py-32 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
-              Gallery
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
-              Explore Our Premium Collection
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Discover stunning visuals crafted by professionals for your creative projects
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {galleryItems.map((item, index) => (
-              <div
-                key={index}
-                className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer animate-in fade-in slide-in-from-bottom-4 duration-700 transition-all hover:scale-150 hover:z-50 hover:shadow-[0_0_60px_rgba(220,38,38,0.9)]"
-                style={{ 
-                  animationDelay: `${index * 100}ms`,
-                  transformOrigin: 'left center'
-                }}
-              >
-                <img
-                  src={item.src}
-                  alt={`Gallery ${index + 1}`}
-                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-125 group-hover:rotate-3"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center gap-4">
-                  <h3 className="text-white text-3xl font-bold transform -translate-y-10 group-hover:translate-y-0 transition-all duration-700 delay-100">
-                    {item.heading}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/premium">
-                View Full Gallery
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
           </div>
         </div>
       </section>
