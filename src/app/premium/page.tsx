@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Navigation } from '@/components/Navigation'
@@ -139,7 +139,7 @@ export default function PremiumPage() {
 
   useEffect(() => {
     if (user?.hasActiveSubscription) fetchGalleryItems()
-  }, [user, selectedCategory, contentType])
+  }, [user])
 
   const fetchUser = async () => {
     const start = Date.now()
@@ -166,12 +166,12 @@ export default function PremiumPage() {
     }
   }
 
-  const fetchGalleryItems = async () => {
+  const fetchGalleryItems = useCallback(async (category = selectedCategory, type = contentType) => {
     setGalleryLoading(true)
     try {
       const params = new URLSearchParams({ limit: '100', premium: 'true' })
-      if (selectedCategory !== 'all') params.set('category', selectedCategory)
-      params.set('contentType', contentType === 'videos' ? 'video' : 'image')
+      if (category !== 'all') params.set('category', category)
+      params.set('contentType', type === 'videos' ? 'video' : 'image')
       const res = await fetch(`/api/gallery?${params}`)
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
@@ -192,7 +192,7 @@ export default function PremiumPage() {
     } finally {
       setGalleryLoading(false)
     }
-  }
+  }, [selectedCategory, contentType])
 
   const navigateLightbox = (dir: 'prev' | 'next') => {
     if (!selectedItem) return
@@ -390,7 +390,7 @@ export default function PremiumPage() {
                 <p className="text-muted-foreground max-w-2xl mx-auto">Exclusive content across 20 different categories</p>
               </div>
 
-              <Tabs defaultValue="images" className="w-full" onValueChange={(v) => { setContentType(v as ContentType); setSelectedCategory('all') }}>
+              <Tabs defaultValue="images" className="w-full" onValueChange={(v) => { const newType = v as ContentType; setContentType(newType); setSelectedCategory('all'); fetchGalleryItems('all', newType) }}>
                 <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
                   <TabsTrigger value="images" className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />Images
@@ -407,7 +407,7 @@ export default function PremiumPage() {
                         key={category.id}
                         variant={selectedCategory === category.id ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setSelectedCategory(category.id)}
+                        onClick={() => { setSelectedCategory(category.id); fetchGalleryItems(category.id) }}
                         className="flex items-center gap-2 whitespace-nowrap"
                       >
                         <span>{category.emoji}</span>

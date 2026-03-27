@@ -15,6 +15,23 @@ function getUserId(request: NextRequest): string | null {
   }
 }
 
+async function getUserActivePlanId(userId: string): Promise<string | null> {
+  try {
+    const sub = await db.subscription.findFirst({
+      where: {
+        userId,
+        status: 'approved',
+        OR: [{ endDate: null }, { endDate: { gt: new Date() } }]
+      },
+      select: { planId: true },
+      orderBy: { createdAt: 'desc' }
+    })
+    return sub?.planId ?? null
+  } catch {
+    return null
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -46,6 +63,7 @@ export async function GET(request: NextRequest) {
           category: true,
           contentType: true,
           isPremium: true,
+          planAccess: true,
           displayOrder: true,
           views: true,
           likes: true,
@@ -56,9 +74,36 @@ export async function GET(request: NextRequest) {
     ])
 
     const userId = getUserId(request)
+
+    // Filter by planAccess — only show items user's plan has access to
+    let userPlanId: string | null = null
+    if (userId && premiumParam === 'true') {
+      userPlanId = await getUserActivePlanId(userId)
+    }
+
+    // Get plan names to check if user is VIP
+    let userPlanName: string | null = null
+    if (userPlanId) {
+      const plan = await db.plan.findUnique({ where: { id: userPlanId }, select: { name: true } })
+      userPlanName = plan?.name?.toLowerCase() ?? null
+    }
+    const isVip = userPlanName?.includes('vip') ?? false
+
+    const accessibleItems = items.filter((item: any) => {
+      if (!item.planAccess) return true
+      try {
+        const allowedPlans: string[] = JSON.parse(item.planAccess)
+        if (allowedPlans.length === 0) return true
+        if (isVip) return true // VIP users see everything
+        return userPlanId ? allowedPlans.includes(userPlanId) : false
+      } catch {
+        return true
+      }
+    })
+
     let likedSet = new Set<string>()
-    if (userId && items.length > 0) {
-      const ids = items.map(i => i.id)
+    if (userId && accessibleItems.length > 0) {
+      const ids = accessibleItems.map((i: any) => i.id)
       const likedRows = await (db as any).galleryLike.findMany({
         where: { galleryId: { in: ids }, userId },
         select: { galleryId: true }
@@ -66,7 +111,7 @@ export async function GET(request: NextRequest) {
       likedSet = new Set(likedRows.map((r: any) => r.galleryId))
     }
 
-    const data = items.map(item => {
+    const data = accessibleItems.map(item => {
       const isBase64Video = item.contentType === 'video' && item.imageUrl?.startsWith('data:')
 
       return {
