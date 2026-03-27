@@ -169,7 +169,7 @@ export default function AdminDashboard() {
     { id: 'special', name: 'Special Requests' },
   ]
 
-  const [galleryForm, setGalleryForm] = useState({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false })
+  const [galleryForm, setGalleryForm] = useState({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false, planAccess: [] as string[] })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
   const [uploadingThumb, setUploadingThumb] = useState(false)
@@ -183,6 +183,7 @@ export default function AdminDashboard() {
   const [bulkProgress, setBulkProgress] = useState(0)
   const [bulkIsPremium, setBulkIsPremium] = useState(false)
   const [bulkCategory, setBulkCategory] = useState('')
+  const [bulkPlanAccess, setBulkPlanAccess] = useState<string[]>([])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -233,6 +234,7 @@ export default function AdminDashboard() {
               imageUrl: data.url,
               isPremium: galleryForm.isPremium,
               category: galleryForm.category,
+              planAccess: galleryForm.planAccess.length > 0 ? JSON.stringify(galleryForm.planAccess) : null,
               contentType: 'image'
             })
           }
@@ -248,7 +250,7 @@ export default function AdminDashboard() {
           if (data.success) {
             await fetchGallery()
             setShowAddGallery(false)
-            setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false })
+            setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false, planAccess: [] })
             alert(`✓ ${data.count} images uploaded! Status: Inactive — edit karo activate karne ke liye.`)
           }
         }
@@ -301,7 +303,7 @@ export default function AdminDashboard() {
         const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
         const data = await res.json()
         if (data.success) {
-          uploaded.push({ title, imageUrl: data.url, isPremium: bulkIsPremium, category: bulkCategory, contentType: 'image' })
+          uploaded.push({ title, imageUrl: data.url, isPremium: bulkIsPremium, category: bulkCategory, planAccess: bulkPlanAccess.length > 0 ? JSON.stringify(bulkPlanAccess) : null, contentType: 'image' })
         }
         setBulkProgress(Math.round(((i + 1) / bulkFiles.length) * 100))
       }
@@ -319,6 +321,7 @@ export default function AdminDashboard() {
           setBulkProgress(0)
           setBulkCategory('')
           setBulkIsPremium(false)
+          setBulkPlanAccess([])
           alert(`✓ ${data.count} images uploaded successfully! Status: Inactive — edit karo activate karne ke liye.`)
         }
       }
@@ -380,7 +383,7 @@ export default function AdminDashboard() {
       if (activeSection === 'revenue') fetchRevenue()
       if (activeSection === 'users') fetchUsers(1, '')
       if (activeSection === 'subscriptions') { fetchSubscriptions(1, 'all'); fetchPlansAndUsers() }
-      if (activeSection === 'gallery') fetchGallery()
+      if (activeSection === 'gallery') { fetchGallery(); fetchAdminPlans() }
       if (activeSection === 'plans') fetchAdminPlans()
     }
   }, [activeSection, admin, timeRange, metricType])
@@ -533,13 +536,13 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/gallery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(galleryForm)
+        body: JSON.stringify({ ...galleryForm, planAccess: galleryForm.planAccess.length > 0 ? JSON.stringify(galleryForm.planAccess) : null })
       })
       const data = await res.json()
       if (data.success) {
         setGalleryItems(prev => [data.data, ...prev])
         setShowAddGallery(false)
-        setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false })
+        setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false, planAccess: [] })
       } else {
         alert('Add failed: ' + (data.error || 'Unknown error'))
       }
@@ -554,7 +557,7 @@ export default function AdminDashboard() {
       const res = await fetch(`/api/admin/gallery?id=${editingGallery.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(galleryForm)
+        body: JSON.stringify({ ...galleryForm, planAccess: galleryForm.planAccess.length > 0 ? JSON.stringify(galleryForm.planAccess) : null })
       })
       const data = await res.json()
       if (data.success) {
@@ -2076,6 +2079,34 @@ export default function AdminDashboard() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* Plan Access */}
+                    <div className="space-y-2">
+                      <Label>Kin Plans Ko Dikhao <span className="text-xs text-gray-400">(koi select na karo = sab plans)</span></Label>
+                      <div className="flex flex-wrap gap-2">
+                        {adminPlans.filter(p => p.isActive).map(plan => (
+                          <button
+                            key={plan.id}
+                            type="button"
+                            onClick={() => setGalleryForm(prev => ({
+                              ...prev,
+                              planAccess: prev.planAccess.includes(plan.id)
+                                ? prev.planAccess.filter(id => id !== plan.id)
+                                : [...prev.planAccess, plan.id]
+                            }))}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                              galleryForm.planAccess.includes(plan.id)
+                                ? 'bg-primary border-primary text-white'
+                                : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {plan.name} ({plan.currency}{plan.price})
+                          </button>
+                        ))}
+                      </div>
+                      {galleryForm.planAccess.length === 0 && (
+                        <p className="text-xs text-gray-500">✅ Sab plans ko dikhega</p>
+                      )}
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setShowAddGallery(false)} className="border-gray-700 text-white">Cancel</Button>
@@ -2174,6 +2205,34 @@ export default function AdminDashboard() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* Plan Access */}
+                    <div className="space-y-2">
+                      <Label>Kin Plans Ko Dikhao <span className="text-xs text-gray-400">(koi select na karo = sab plans)</span></Label>
+                      <div className="flex flex-wrap gap-2">
+                        {adminPlans.filter(p => p.isActive).map(plan => (
+                          <button
+                            key={plan.id}
+                            type="button"
+                            onClick={() => setGalleryForm(prev => ({
+                              ...prev,
+                              planAccess: prev.planAccess.includes(plan.id)
+                                ? prev.planAccess.filter(id => id !== plan.id)
+                                : [...prev.planAccess, plan.id]
+                            }))}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                              galleryForm.planAccess.includes(plan.id)
+                                ? 'bg-primary border-primary text-white'
+                                : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {plan.name} ({plan.currency}{plan.price})
+                          </button>
+                        ))}
+                      </div>
+                      {galleryForm.planAccess.length === 0 && (
+                        <p className="text-xs text-gray-500">✅ Sab plans ko dikhega</p>
+                      )}
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setEditingGallery(null)} className="border-gray-700 text-white">Cancel</Button>
@@ -2232,6 +2291,31 @@ export default function AdminDashboard() {
                             </SelectContent>
                           </Select>
                         </div>
+                      )}
+                    </div>
+                    {/* Plan Access for Bulk */}
+                    <div className="space-y-2">
+                      <Label>Kin Plans Ko Dikhao <span className="text-xs text-gray-400">(koi select na karo = sab plans)</span></Label>
+                      <div className="flex flex-wrap gap-2">
+                        {adminPlans.filter(p => p.isActive).map(plan => (
+                          <button
+                            key={plan.id}
+                            type="button"
+                            onClick={() => setBulkPlanAccess(prev =>
+                              prev.includes(plan.id) ? prev.filter(id => id !== plan.id) : [...prev, plan.id]
+                            )}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                              bulkPlanAccess.includes(plan.id)
+                                ? 'bg-primary border-primary text-white'
+                                : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {plan.name} ({plan.currency}{plan.price})
+                          </button>
+                        ))}
+                      </div>
+                      {bulkPlanAccess.length === 0 && (
+                        <p className="text-xs text-gray-500">✅ Sab plans ko dikhega</p>
                       )}
                     </div>
 
@@ -2296,7 +2380,7 @@ export default function AdminDashboard() {
                       <Button onClick={() => { setBulkFiles([]); setBulkCategory(''); setBulkIsPremium(false); setShowBulkUpload(true) }} variant="outline" className="border-gray-700 text-white hover:bg-gray-700">
                         <Upload className="h-4 w-4 mr-2" /> Bulk Upload
                       </Button>
-                      <Button onClick={() => { setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false }); setShowAddGallery(true) }} className="bg-primary hover:bg-primary/90">
+                      <Button onClick={() => { setGalleryForm({ title: '', description: '', imageUrl: '', thumbnailUrl: '', category: '', isActive: true, contentType: 'image', isPremium: false, planAccess: [] }); setShowAddGallery(true) }} className="bg-primary hover:bg-primary/90">
                         <Plus className="h-4 w-4 mr-2" /> Add content
                       </Button>
                     </div>
@@ -2326,10 +2410,22 @@ export default function AdminDashboard() {
                           </div>
                           <div className="p-2">
                             <p className="text-sm font-medium truncate">{item.title}</p>
-                            <div className="flex gap-1 mt-1">
+                            <div className="flex gap-1 mt-1 flex-wrap">
                               <Badge variant="outline" className="text-xs px-1 py-0">{item.contentType || 'image'}</Badge>
                               <Badge variant={item.isPremium ? 'default' : 'secondary'} className="text-xs px-1 py-0">{item.isPremium ? 'Premium' : 'Free'}</Badge>
                             </div>
+                            {item.planAccess ? (
+                              <div className="flex gap-1 mt-1 flex-wrap">
+                                {JSON.parse(item.planAccess).map((pid: string) => {
+                                  const p = adminPlans.find((pl: any) => pl.id === pid)
+                                  return p ? (
+                                    <span key={pid} className="text-xs bg-primary/20 text-primary border border-primary/30 rounded-full px-1.5 py-0.5">{p.name}</span>
+                                  ) : null
+                                })}
+                              </div>
+                            ) : (
+                              <p className="text-xs text-gray-500 mt-1">All plans</p>
+                            )}
                           </div>
                           <div className="absolute top-2 right-2 hidden group-hover:flex gap-1">
                             <Button
@@ -2337,7 +2433,7 @@ export default function AdminDashboard() {
                               className="h-7 w-7 p-0 bg-gray-900/90"
                               onClick={() => {
                                 setEditingGallery(item)
-                                setGalleryForm({ title: item.title, description: item.description || '', imageUrl: item.imageUrl, thumbnailUrl: item.thumbnailUrl || '', category: item.category || '', isActive: item.isActive, contentType: item.contentType || 'image', isPremium: item.isPremium || false })
+                                setGalleryForm({ title: item.title, description: item.description || '', imageUrl: item.imageUrl, thumbnailUrl: item.thumbnailUrl || '', category: item.category || '', isActive: item.isActive, contentType: item.contentType || 'image', isPremium: item.isPremium || false, planAccess: item.planAccess ? JSON.parse(item.planAccess) : [] })
                               }}
                             >
                               <Edit className="h-3 w-3" />

@@ -98,6 +98,7 @@ model Gallery {
   category    String?  @default("general")
   contentType String?  @default("image") // "image" or "video"
   isPremium   Boolean  @default(false)
+  planAccess  String?  // JSON array of plan IDs, null = all plans
   isActive    Boolean  @default(true)
   views       Int      @default(0)
   likes       Int      @default(0)

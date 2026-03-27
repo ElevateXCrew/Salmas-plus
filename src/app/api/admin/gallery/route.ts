@@ -12,6 +12,7 @@ const galleryItemSchema = z.object({
   category: z.string().optional(),
   contentType: z.string().optional(),
   isPremium: z.boolean().optional(),
+  planAccess: z.string().nullable().optional(), // JSON array string or null
   isActive: z.boolean().optional(),
   displayOrder: z.number().int().optional()
 })
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, imageUrl, thumbnailUrl, category, isActive, displayOrder, contentType, isPremium } = validation.data
+    const { title, description, imageUrl, thumbnailUrl, category, isActive, displayOrder, contentType, isPremium, planAccess } = validation.data
 
     // Get the highest display order if not provided
     let finalDisplayOrder = displayOrder
@@ -137,7 +138,8 @@ export async function POST(request: NextRequest) {
         isActive: isActive ?? true,
         displayOrder: finalDisplayOrder,
         contentType: contentType ?? 'image',
-        isPremium: isPremium ?? false
+        isPremium: isPremium ?? false,
+        planAccess: planAccess ?? null
       }
     })
 
@@ -198,6 +200,7 @@ export async function PUT(request: NextRequest) {
         category: item.category || null,
         contentType: item.contentType || 'image',
         isPremium: item.isPremium ?? false,
+        planAccess: item.planAccess ?? null,
         isActive: false,
         displayOrder: nextOrder++
       }))
@@ -255,9 +258,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update gallery item
+    const updateData = Object.fromEntries(
+      Object.entries(validation.data).filter(([_, v]) => v !== undefined)
+    )
     const updatedItem = await db.gallery.update({
       where: { id },
-      data: validation.data
+      data: updateData
     })
 
     return NextResponse.json({
